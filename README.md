@@ -34,3 +34,7 @@ Facts checked 6 Oct 2026. Built from Anthropic's model docs, OpenAI's model note
 ## Run locally
 
 Open `opus-5-5-creative-prompting-guide.html` in any modern browser. There's no build step. Web fonts load from Google Fonts when you're online.
+
+## Licence
+
+The guide's text is licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). You may share and adapt it for any purpose, including commercially, as long as you credit the source. See [`LICENSE`](LICENSE). Third-party projects, tools and trademarks mentioned in the guide remain under their own licences.

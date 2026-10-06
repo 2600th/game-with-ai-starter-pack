@@ -14,11 +14,14 @@
 <meta property="og:image" content="https://2600th.github.io/game-with-ai-starter-pack/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Hero of the guide: Every line you write shows up on screen.">
+<meta property="og:image:alt" content="Every line you write shows up on screen: a prompt beside the pixel-art night scene it draws.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Prompts that move: an Opus 5.5 field guide for games, art, animation, 3D and coded video">
 <meta name="twitter:description" content="How to brief Claude Opus 5.5 for games, animations, dioramas, 3D scenes and coded video, with live demos, starter prompts and checklists for every craft from art direction to performance.">
 <meta name="twitter:image" content="https://2600th.github.io/game-with-ai-starter-pack/og-image.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..800&display=swap">
@@ -3583,8 +3586,19 @@ addEventListener('load',uiFix);if(document.fonts&&document.fonts.ready)document.
 document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.tabs,.skim,#skim'))setTimeout(uiFix,50)});
 /* ---------- skim ---------- */
 var skim=$('skim');
-if(sget('pg-skim')==='1'){skim.checked=true;document.body.classList.add('skim')}
-skim.addEventListener('change',function(){document.body.classList.toggle('skim',skim.checked);sset('pg-skim',skim.checked?'1':'0');setTimeout(uiFix,50)});
+/* reading times follow what skim actually hides: each section's minutes scale by its share of words outside .deep */
+function skimWords(el,skip){var n=0,w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,{acceptNode:function(t){var p=t.parentElement;return !p||p.closest('script,style')||(skip&&p.closest('.deep'))?2:1}});while(w.nextNode())n+=(w.currentNode.nodeValue.match(/\S+/g)||[]).length;return n}
+var skimMins=[],skimAll=0,skimKept=0;
+[].forEach.call(document.querySelectorAll('#rail a'),function(a){var m=a.querySelector('.min'),sec=document.querySelector(a.getAttribute('href'));if(!m||!sec)return;var f=parseInt(m.textContent,10)||1,all=skimWords(sec,false),kept=skimWords(sec,true);skimAll+=all;skimKept+=kept;skimMins.push({el:m,f:f,s:Math.max(1,Math.round(f*kept/Math.max(1,all)))})});
+var skimChip=[].filter.call(document.querySelectorAll('.chip'),function(c){return /skim mode/.test(c.textContent)})[0],fullChip=[].filter.call(document.querySelectorAll('.chip'),function(c){return /full read/.test(c.textContent)})[0];
+var skimTotal=Math.max(1,Math.round((fullChip?parseInt(fullChip.lastChild.nodeValue,10):111)*skimKept/Math.max(1,skimAll)));
+if(skimChip)skimChip.lastChild.nodeValue=skimTotal+' min in skim mode';
+var skimHidden=document.querySelectorAll('.deep').length;
+/* keep the block at the top of the viewport in place when content above it collapses or expands */
+function skimAnchor(){var top=($('topbar')||document.querySelector('.topbar')||{offsetHeight:64}).offsetHeight;var c=document.querySelectorAll('section > *');for(var i=0;i<c.length;i++){var e=c[i];if(e.offsetParent===null||e.closest('.deep'))continue;var r=e.getBoundingClientRect();if(r.bottom>top+4)return{el:e,y:r.top}}return null}
+function applySkim(on,announce){var a=announce&&scrollY>0?skimAnchor():null;document.body.classList.toggle('skim',on);skimMins.forEach(function(m){m.el.textContent=(on?m.s:m.f)+' min'});if(a)window.scrollBy({top:a.el.getBoundingClientRect().top-a.y,behavior:'instant'});if(announce)showToast(on?'Skim mode on: '+skimHidden+' deep-dive blocks hidden. Reading time about '+skimTotal+' min':'Skim mode off: showing everything',2600)}
+if(sget('pg-skim')==='1'){skim.checked=true;applySkim(true,false)}
+skim.addEventListener('change',function(){applySkim(skim.checked,true);sset('pg-skim',skim.checked?'1':'0');setTimeout(uiFix,50)});
 
 /* ---------- nav ---------- */
 var rail=$('rail'), chipnav=$('chipnav');
@@ -3605,7 +3619,7 @@ addEventListener('scroll',onScroll,{passive:true});onScroll();
 
 /* ---------- toast & copy ---------- */
 var toast=$('toast'), tt=0;
-function showToast(m){toast.textContent=m;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show')},1600)}
+function showToast(m,ms){toast.textContent=m;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show')},ms||1600)}
 function copyText(t){
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast('Copied to clipboard')},function(){fallback(t)})}else fallback(t);
 }

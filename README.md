@@ -29,6 +29,7 @@ Facts checked 6 Oct 2026. Built from Anthropic's model docs, OpenAI's model note
 | `opus-5-5-creative-prompting-guide.html` | The guide, as a single self-contained HTML page |
 | `index.html` | Redirects the site root to the guide, with link-preview tags |
 | `og-image.png` | Preview image for social and chat link cards |
+| `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | Site icons (the guide's four-square mark) |
 | `.nojekyll` | Tells GitHub Pages to serve files as they are |
 
 ## Run locally
